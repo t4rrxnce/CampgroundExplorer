@@ -1,51 +1,52 @@
-# Campground Explorer  
-Unit 4 Lab: Campground Explorer
+# Campground Explorer Pt. 2  
+Unit 5 Lab: Offline Mode
 
 ## Overview
-This project is an Android app that displays a list of campgrounds using data from the National Park Service API.  
-The goal of this lab was to learn how to parse nested JSON with Kotlin Serialization, use RecyclerView to show a scrollable list, and navigate between multiple screens with Intents.
+This project extends the National Park Service **Campground Explorer** app from Unit 4.  
+The goal of this lab was to add **offline mode** so that the app can still display campgrounds even when the device has no internet connection (e.g., airplane mode). To achieve this, we integrated the **Room persistence library** for local caching of campground data.
 
 ---
 
 ## Required Features
 The following required features are completed:
 
-- User can scroll through a list of campgrounds  
-- Each campground displays the following:  
+- Most recently fetched campground data is stored locally in a Room database  
+- If user turns on airplane mode and reopens the app, previously cached data is displayed  
+- Data is reloaded from the API when online and replaces older cached entries  
+- Campgrounds still display:  
   - Name  
   - Description  
   - Location (latitude/longitude)  
   - Image  
-- User can tap on a campground to navigate to a detail screen showing:  
-  - Name  
-  - Description  
-  - Location  
-  - Image  
+
+### Offline Mode  
+Campgrounds loaded from local Room database when internet is unavailable.
+
+https://github.com/t4rrxnce/CampgroundExplorer/blob/4d8a653144afd87b7209adc66b762b9b335a78a7/Untitled%20design%20(8).gif 
 
 ---
 
-## Demo
-https://github.com/t4rrxnce/CampgroundExplorer/blob/07fc8989733a3e7f97a2dd2fb1954e96af54fd7c/Untitled%20design%20(6).gif 
-
 ## Technical Details
-- **RecyclerView** is used to display the list of campgrounds efficiently.  
-- **Campground.kt**: Data models for campgrounds and images using Kotlin Serialization.  
-- **CampgroundAdapter.kt**: Custom adapter that binds each Campground object into `item_campground.xml`.  
-- **MainActivity.kt**: Fetches data from the NPS API, parses JSON, and sets up RecyclerView with adapter.  
-- **DetailActivity.kt**: Displays details for the selected campground passed via `Intent`.  
-- **activity_main.xml**: Contains the RecyclerView.  
-- **activity_detail.xml**: Layout for the detail screen showing name, description, location, and image.  
-- **item_campground.xml**: Defines how a single campground row looks.  
-- **Glide**: Loads and caches images from URLs.  
-- **AsyncHttpClient**: Handles network requests to the API.  
+- **Room Database**: Used to persist campground data for offline use  
+  - `CampgroundEntity.kt`: Defines the schema for cached campground rows  
+  - `CampgroundDao.kt`: DAO interface with `insertAll`, `getAll`, and `deleteAll` methods  
+  - `AppDatabase.kt`: Database holder and configuration class  
+  - `CampgroundApplication.kt`: Provides a single instance of the database across the app  
+- **Coroutines + Flow**:  
+  - `lifecycleScope.launch(IO)` ensures database operations run off the main thread  
+  - `Flow<List<CampgroundEntity>>` streams data updates to the UI  
+- **MainActivity.kt**:  
+  - Inserts fresh data from API into the database  
+  - Collects data from the database and updates the `RecyclerView` adapter  
+- **RecyclerView + Glide**: Same as Unit 4, still handle displaying lists and images  
 
 ---
 
 ## Resources
-- [RecyclerView Guide (CodePath)](https://guides.codepath.com/android/using-the-recyclerview)  
-- [Using Intents to Create Flows (CodePath)](https://guides.codepath.com/android/using-intents-to-create-flows)  
-- [Glide GitHub](https://github.com/bumptech/glide)  
-- [NPS API Docs](https://www.nps.gov/subjects/developer/api-documentation.htm)  
+- [Room Persistence Library (Android Docs)](https://developer.android.com/training/data-storage/room)  
+- [Kotlin Coroutines Guide](https://developer.android.com/kotlin/coroutines)  
+- [Kotlin Flow](https://kotlinlang.org/docs/flow.html)  
+- [CodePath Guide: Room](https://guides.codepath.com/android/Room-Guide)  
 
 ---
 
